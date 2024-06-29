@@ -1,7 +1,7 @@
 import apiClient from "@/lib/apiClient";
 import { PostType, Profile } from "@/types";
 import { GetServerSideProps } from "next";
-import React from "react";
+import React, { useState } from "react";
 
 type Props = {
   profile: Profile;
@@ -30,6 +30,29 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 };
 
 const UserProfile = ({ profile, posts }: Props) => {
+  const [viewBio, setViewBio] = useState<string>(profile.bio);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [newBio, setNewBio] = useState<string>("");
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveClick = async () => {
+    try {
+      const response = await apiClient.post("/users/updateBio", {
+        userId: profile.userId,
+        bio: newBio,
+      });
+      if (response.status == 200) {
+        setIsEditing(false);
+        setViewBio(response.data.bio);
+      }
+    } catch (err) {
+      console.error("更新に失敗しました。", err);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="w-full max-w-xl mx-auto">
@@ -44,7 +67,23 @@ const UserProfile = ({ profile, posts }: Props) => {
               <h2 className="text-2xl font-semibold mb-1">
                 {profile.user.username}
               </h2>
-              <p className="text-gray-600">{profile.bio}</p>
+              <div>
+                {isEditing ? (
+                  <textarea
+                    className="w-full p-2 border rounded"
+                    value={newBio}
+                    onChange={(e) => setNewBio(e.target.value)}
+                  />
+                ) : (
+                  <p>{viewBio}</p>
+                )}
+              </div>
+              <button
+                className="mt-4 p-2 bg-blue-500 text-white rounded"
+                onClick={isEditing ? handleSaveClick : handleEditClick}
+              >
+                {isEditing ? "保存" : "プロフィール編集"}
+              </button>
             </div>
           </div>
         </div>
