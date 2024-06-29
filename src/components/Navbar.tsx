@@ -1,4 +1,5 @@
 import { useAuth } from "@/context/auth";
+import { UserType } from "@/types";
 import Link from "next/link";
 import React from "react";
 
@@ -10,6 +11,9 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <h1 className="font-semibold text-2xl font-midium">
           <Link href="/">SNS Clone</Link>
+        </h1>
+        <h1 className="font-semibold text-xl font-midium p-2">
+          {user ? `こんにちは! ${user.username} さん` : ""}
         </h1>
         <nav>
           <ul className="flex space-x-4">

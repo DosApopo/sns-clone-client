@@ -1,14 +1,19 @@
 import React from "react";
-import Image from "next/image";
 import { PostType } from "@/types";
 import Link from "next/link";
+import { useAuth } from "@/context/auth";
 
 type Props = {
   post: PostType;
+  onDeletePost: (post: PostType) => Promise<void>;
 };
 
 const Post = (props: Props) => {
-  const { post } = props;
+  const { post, onDeletePost } = props;
+  const { user } = useAuth();
+  const handleDeleteClick = () => {
+    onDeletePost(post);
+  };
 
   return (
     <div className="bg-white shadow-md rounded p-4 mb-4">
@@ -29,6 +34,20 @@ const Post = (props: Props) => {
           </div>
         </div>
         <p className="text-gray-700">{post.content}</p>
+      </div>
+      <div className="flex flex-row-reverse">
+        {user?.id == post.authorId ? (
+          <div>
+            <button
+              className="rounded bg-gray-200 p-2 transition-colors hover:bg-red-400 font-semibold"
+              onClick={handleDeleteClick}
+            >
+              削除
+            </button>
+          </div>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );
