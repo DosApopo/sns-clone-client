@@ -1,10 +1,9 @@
 import apiClient from "@/lib/apiClient";
-import { setuid } from "process";
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
   user: null | { id: number; username: string; email: string };
-  login: (token: string) => void;
+  login: () => void;
   logout: () => void;
 }
 
@@ -30,25 +29,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("auth_token");
-    if (token) {
-      apiClient.defaults.headers["Authorization"] = `Bearer ${token}`;
-
-      apiClient
-        .get("/users/find")
-        .then((res) => {
-          setUser(res.data.user);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+    apiClient
+      .get("/users/find")
+      .then((res) => {
+        setUser(res.data.user);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
-  const login = async (token: string) => {
-    localStorage.setItem("auth_token", token);
-    apiClient.defaults.headers["Authorization"] = `Bearer ${token}`;
-
+  const login = async () => {
     try {
       apiClient.get("/users/find").then((res) => {
         setUser(res.data.user);
@@ -59,9 +50,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("auth_token");
-    delete apiClient.defaults.headers["Authorization"];
-    setUser(null);
+    try {
+      apiClient.get("/auth/logout").then(() => {
+        setUser(null);
+      });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const value = {

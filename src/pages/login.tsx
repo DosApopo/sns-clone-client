@@ -17,13 +17,12 @@ function Login() {
 
     //ログインのAPI実行
     try {
-      const response = await apiClient.post("/auth/login", {
+      await apiClient.post("/auth/login", {
         email,
         password,
       });
 
-      const token = response.data.token;
-      login(token);
+      login();
 
       router.push("/");
     } catch (err) {
